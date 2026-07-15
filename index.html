@@ -3,66 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O.KEYEZ | MESSENGER</title>
+    <title>O.KEYEZ LUXURY | APP</title>
     <style>
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; height: 100vh; display: flex; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; }
         
+        .app-container { display: flex; height: 100vh; width: 100vw; }
+
         /* Sidebar */
-        .sidebar { width: 300px; border-right: 1px solid #222; padding: 20px; }
-        .user-card { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Follow Button Style */
-        .follow-btn { background: transparent; border: 1px solid #444; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.3s; }
-        .follow-btn.following { background: #fff; color: #000; border-color: #fff; }
+        .sidebar { width: 30%; max-width: 300px; border-right: 1px solid #222; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-weight: bold; border-bottom: 1px solid #222; }
+        .user-card { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .follow-btn { background: transparent; border: 1px solid #444; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .following { background: #fff; color: #000; }
 
         /* Chat Area */
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 20px; border-bottom: 1px solid #222; font-weight: 600; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #000; }
         .messages { flex: 1; padding: 20px; overflow-y: auto; }
         .msg { margin-bottom: 15px; }
-        .msg span { background: #1a1a1a; padding: 10px 15px; border-radius: 20px; display: inline-block; }
-        
-        /* Input */
-        .input-area { padding: 20px; display: flex; gap: 10px; }
+        .msg span { background: #1a1a1a; padding: 10px 15px; border-radius: 18px; display: inline-block; max-width: 70%; }
+        .input-area { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
         input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 20px; outline: none; }
-        button { padding: 10px 20px; background: #fff; color: #000; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
+        button.send { padding: 10px 20px; background: #fff; color: #000; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h3>O.KEYEZ LUXURY</h3>
-    
-    <!-- User List -->
-    <div class="user-card">
-        <span>Mercy</span>
-        <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+<div class="app-container">
+    <div class="sidebar">
+        <div class="sidebar-header">O.KEYEZ LUXURY</div>
+        <div class="user-card" id="user-maana">
+            <span>Maana</span>
+            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+        </div>
+        <div class="user-card" id="user-king">
+            <span>King</span>
+            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+        </div>
     </div>
-    <div class="user-card">
-        <span>Kingsley</span>
-        <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-    </div>
-</div>
 
-<div class="chat-area">
-    <div class="chat-header">MESSAGES</div>
-    <div class="messages" id="chat-box">
-        <div class="msg"><span>Welcome to the vault.</span></div>
-    </div>
-    <div class="input-area">
-        <input type="text" id="msg-input" placeholder="Message...">
-        <button onclick="sendMsg()">SEND</button>
+    <div class="chat-area">
+        <div class="messages" id="chat-box">
+            <div class="msg"><span>Select a user to start texting.</span></div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Message...">
+            <button class="send" onclick="sendMsg()">SEND</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Toggle Follow State
     function toggleFollow(btn) {
         btn.classList.toggle('following');
         btn.innerText = btn.classList.contains('following') ? 'Following' : 'Follow';
     }
 
-    // Send Message
     function sendMsg() {
         const input = document.getElementById('msg-input');
         const box = document.getElementById('chat-box');
@@ -76,6 +72,5 @@
         }
     }
 </script>
-
 </body>
 </html>
