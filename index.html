@@ -3,78 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O.KEYEZ LUXURY | PORTAL</title>
+    <title>O.KEYEZ LUXURY | LOGIN</title>
     <style>
-        body { margin: 0; padding: 0; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .container { width: 90%; max-width: 320px; text-align: center; }
-        h1 { font-weight: 300; letter-spacing: 0.2rem; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #333; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #fff; color: #000; border: none; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .toggle-btn { background: transparent; color: #888; border: 1px solid #333; margin-top: 15px; font-size: 0.8rem; }
-        #profile-view { display: none; }
-        #message { color: #ff4444; font-size: 0.8rem; margin: 10px 0; min-height: 1.2rem; }
+        :root { --accent: #fff; --bg: #000; --input-bg: #1a1a1a; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--accent); display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .wrapper { width: 100%; max-width: 350px; padding: 20px; }
+        h1 { text-align: center; font-weight: 300; letter-spacing: 2px; margin-bottom: 40px; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        input { width: 100%; padding: 15px; background: var(--input-bg); border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--accent); }
+        .btn { width: 100%; padding: 15px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .toggle-btn { text-align: center; margin-top: 20px; font-size: 14px; color: #888; cursor: pointer; }
+        #message { text-align: center; color: #ff4444; font-size: 13px; margin-bottom: 10px; min-height: 20px; }
+        #profile-view { display: none; text-align: center; }
+        .eye-icon { position: absolute; right: 15px; top: 15px; cursor: pointer; color: #888; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div id="auth-view" class="container">
+<div class="wrapper" id="auth-view">
     <h1 id="title">LOGIN</h1>
-    <input type="text" id="username" placeholder="USERNAME">
-    <input type="password" id="password" placeholder="PASSCODE">
     <div id="message"></div>
-    <button id="action-btn" onclick="handleAuth()">SIGN IN</button>
-    <button class="toggle-btn" onclick="toggleMode()" id="toggle-text">Need an account? Create one</button>
+    <div class="input-group">
+        <input type="text" id="username" placeholder="Username">
+    </div>
+    <div class="input-group">
+        <input type="password" id="password" placeholder="Passcode" id="pass-field">
+        <span class="eye-icon" onclick="togglePass()">SHOW</span>
+    </div>
+    <button class="btn" id="action-btn" onclick="handleAuth()">Sign In</button>
+    <div class="toggle-btn" id="toggle-text" onclick="toggleMode()">Don't have an account? Sign up</div>
 </div>
 
-<div id="profile-view" class="container">
+<div class="wrapper" id="profile-view">
     <h1>WELCOME, <span id="display-name"></span></h1>
-    <button onclick="logout()">LOGOUT</button>
+    <button class="btn" onclick="logout()">LOGOUT</button>
 </div>
 
 <script>
     let isLoginMode = true;
+    const users = JSON.parse(localStorage.getItem('oKeyezUsers') || '{}');
 
-    // Check if user is already logged in
-    const activeUser = localStorage.getItem('oKeyezActiveUser');
-    if (activeUser) showProfile(activeUser);
+    // Init session check
+    const active = localStorage.getItem('oKeyezActiveUser');
+    if (active) showProfile(active);
 
     function toggleMode() {
         isLoginMode = !isLoginMode;
-        document.getElementById('title').innerText = isLoginMode ? "LOGIN" : "CREATE ACCOUNT";
-        document.getElementById('action-btn').innerText = isLoginMode ? "SIGN IN" : "REGISTER";
-        document.getElementById('toggle-text').innerText = isLoginMode ? "Need an account? Create one" : "Back to Login";
+        document.getElementById('title').innerText = isLoginMode ? "LOGIN" : "SIGN UP";
+        document.getElementById('action-btn').innerText = isLoginMode ? "Sign In" : "Register";
+        document.getElementById('toggle-text').innerText = isLoginMode ? "Don't have an account? Sign up" : "Already have an account? Login";
         document.getElementById('message').innerText = "";
     }
 
+    function togglePass() {
+        const p = document.getElementById('password');
+        p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
     function handleAuth() {
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-        const users = JSON.parse(localStorage.getItem('oKeyezUsers') || '{}');
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
         const msg = document.getElementById('message');
 
-        if (!user || !pass) { msg.innerText = "Please fill all fields."; return; }
+        if (!u || !p) { msg.innerText = "Please fill in all fields."; return; }
 
         if (isLoginMode) {
-            // Login Logic
-            if (!users[user]) {
-                msg.innerText = "Account does not exist.";
-            } else if (users[user] !== pass) {
-                msg.innerText = "Incorrect passcode.";
-            } else {
-                localStorage.setItem('oKeyezActiveUser', user);
-                showProfile(user);
-            }
+            if (!users[u]) { msg.innerText = "Account not found."; }
+            else if (users[u] !== p) { msg.innerText = "Incorrect passcode."; }
+            else { localStorage.setItem('oKeyezActiveUser', u); showProfile(u); }
         } else {
-            // Registration Logic
-            if (users[user]) {
-                msg.innerText = "Account already exists.";
-            } else {
-                users[user] = pass;
-                localStorage.setItem('oKeyezUsers', JSON.stringify(users));
-                msg.style.color = "#44ff44";
-                msg.innerText = "Account created! Please sign in.";
-                toggleMode();
-            }
+            if (users[u]) { msg.innerText = "Username taken."; }
+            else { users[u] = p; localStorage.setItem('oKeyezUsers', JSON.stringify(users)); msg.style.color = "#44ff44"; msg.innerText = "Account created!"; setTimeout(toggleMode, 1000); }
         }
     }
 
@@ -89,6 +89,5 @@
         location.reload();
     }
 </script>
-
 </body>
 </html>
