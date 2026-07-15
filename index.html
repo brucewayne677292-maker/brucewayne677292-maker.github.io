@@ -3,73 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O.KEYEZ LUXURY | APP</title>
+    <title>O.KEYEZ LUXURY | PORTAL</title>
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; }
         
-        .app-container { display: flex; height: 100vh; width: 100vw; }
-
-        /* Sidebar */
+        #auth-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        #app-view { display: none; height: 100vh; width: 100vw; }
+        
+        .wrapper { width: 300px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; }
+        .btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        
         .sidebar { width: 30%; max-width: 300px; border-right: 1px solid #222; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; font-weight: bold; border-bottom: 1px solid #222; }
-        .user-card { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-        .follow-btn { background: transparent; border: 1px solid #444; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .following { background: #fff; color: #000; }
-
-        /* Chat Area */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #000; }
+        .user-card { padding: 20px; border-bottom: 1px solid #222; cursor: pointer; display: flex; justify-content: space-between; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
         .messages { flex: 1; padding: 20px; overflow-y: auto; }
         .msg { margin-bottom: 15px; }
         .msg span { background: #1a1a1a; padding: 10px 15px; border-radius: 18px; display: inline-block; max-width: 70%; }
         .input-area { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 20px; outline: none; }
-        button.send { padding: 10px 20px; background: #fff; color: #000; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
+        input.chat-input { flex: 1; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 20px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="sidebar">
-        <div class="sidebar-header">O.KEYEZ LUXURY</div>
-        <div class="user-card" id="user-maana">
-            <span>Maana</span>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-        </div>
-        <div class="user-card" id="user-king">
-            <span>King</span>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-        </div>
+<div id="auth-view">
+    <div class="wrapper">
+        <h1 style="text-align:center; font-weight:300;">O.KEYEZ LOGIN</h1>
+        <input type="text" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn" onclick="signUp()">Sign Up</button>
+        <button class="btn" style="background:#333; color:white; margin-top:10px;" onclick="signIn()">Sign In</button>
     </div>
+</div>
 
+<div id="app-view">
+    <div class="sidebar">
+        <div style="padding:20px; font-weight:bold;">O.KEYEZ LUXURY</div>
+        <div class="user-card" onclick="selectUser('Maana')"><span>Maana</span></div>
+        <div class="user-card" onclick="selectUser('King')"><span>King</span></div>
+        <div class="user-card" style="margin-top:auto;"><button class="btn" onclick="supabase.auth.signOut(); location.reload();">Logout</button></div>
+    </div>
     <div class="chat-area">
-        <div class="messages" id="chat-box">
-            <div class="msg"><span>Select a user to start texting.</span></div>
-        </div>
+        <div class="messages" id="chat-box"><span>Select a user to chat.</span></div>
         <div class="input-area">
-            <input type="text" id="msg-input" placeholder="Message...">
-            <button class="send" onclick="sendMsg()">SEND</button>
+            <input type="text" class="chat-input" id="msg-input" placeholder="Message...">
+            <button class="btn" style="width:auto;" onclick="sendMsg()">SEND</button>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleFollow(btn) {
-        btn.classList.toggle('following');
-        btn.innerText = btn.classList.contains('following') ? 'Following' : 'Follow';
+    // 1. Initialize Supabase
+    const supabaseUrl = 'https://hagwirabhsmmqghltewk.supabase.co';
+    const supabaseKey = 'PASTE_YOUR_FULL_ANON_KEY_HERE'; // <--- Paste your full key from the dashboard here
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    let activeUser = null;
+    let selectedChat = null;
+
+    async function signUp() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const { error } = await supabase.auth.signUp({ email, password: pass });
+        if(error) alert(error.message); else alert("Check email to confirm!");
     }
 
-    function sendMsg() {
-        const input = document.getElementById('msg-input');
-        const box = document.getElementById('chat-box');
-        if(input.value) {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `<span style="background: #333; float: right;">${input.value}</span>`;
-            box.appendChild(div);
-            input.value = '';
-            box.scrollTop = box.scrollHeight;
+    async function signIn() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+        if(error) alert(error.message); else { 
+            activeUser = email; 
+            document.getElementById('auth-view').style.display = 'none'; 
+            document.getElementById('app-view').style.display = 'flex'; 
         }
+    }
+
+    async function sendMsg() {
+        const input = document.getElementById('msg-input');
+        if(!selectedChat || !input.value) return;
+        
+        await supabase.from('messages').insert({ 
+            sender: activeUser, 
+            recipient: selectedChat, 
+            content: input.value 
+        });
+        input.value = '';
+    }
+
+    async function selectUser(user) {
+        selectedChat = user;
+        document.getElementById('chat-box').innerHTML = `<span>Chatting with ${user}...</span>`;
+        
+        // Fetch existing messages
+        const { data } = await supabase.from('messages')
+            .select('*')
+            .or(`and(sender.eq.${activeUser},recipient.eq.${user}),and(sender.eq.${user},recipient.eq.${activeUser})`)
+            .order('created_at', { ascending: true });
+            
+        if(data) {
+            document.getElementById('chat-box').innerHTML = '';
+            data.forEach(m => renderMsg(m.content));
+        }
+
+        // Listen for new ones
+        supabase.channel('public:messages')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                renderMsg(payload.new.content);
+            }).subscribe();
+    }
+
+    function renderMsg(text) {
+        const div = document.createElement('div');
+        div.className = 'msg';
+        div.innerHTML = `<span>${text}</span>`;
+        document.getElementById('chat-box').appendChild(div);
     }
 </script>
 </body>
